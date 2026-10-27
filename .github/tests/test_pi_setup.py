@@ -22,6 +22,17 @@ class PiSetupTests(unittest.TestCase):
         for key in ("$schema",):
             self.assertEqual("https://pi.dev/schemas/settings.schema.json", json.loads((ROOT / ".pi/settings.json").read_text())[key])
 
+    def test_prompt_arguments_and_explicit_skill_routes(self):
+        for prompt, skill in (("reflection", "write-reflection"), ("chapter", "prepare-chapter")):
+            text = (ROOT / f".pi/prompts/{prompt}.md").read_text()
+            self.assertIn("$ARGUMENTS", text)
+            self.assertIn(f".pi/skills/{skill}/SKILL.md", text)
+        review = (ROOT / ".pi/prompts/review.md").read_text()
+        self.assertIn("$ARGUMENTS", review)
+        self.assertIn(".pi/skills/write-reflection/SKILL.md", review)
+        self.assertIn(".pi/skills/prepare-chapter/SKILL.md", review)
+        self.assertIn("without editing", review)
+
     def test_push_gates_do_not_block_manual_dispatch(self):
         for name, job in (("sec10v_reflection.yml", "files"), ("sec10v_chapter.yml", "files"), ("omnivoice.yml", "build-external")):
             text = (ROOT / ".github/workflows" / name).read_text()

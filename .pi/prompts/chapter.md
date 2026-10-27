@@ -1,1 +1,7 @@
-Use `/skill:prepare-chapter` for the requested chapter task. Treat the supplied arguments as the task and follow all three stages in order, preserving exact source text and approval boundaries. Do not commit, push, dispatch, or publish unless explicitly asked.
+---
+description: Prepare or review an audiobook chapter
+argument-hint: <task>
+---
+Read `.pi/skills/prepare-chapter/SKILL.md` and follow its instructions for this task:
+
+$ARGUMENTS

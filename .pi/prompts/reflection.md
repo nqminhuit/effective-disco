@@ -1,1 +1,7 @@
-Use `/skill:write-reflection` for the requested reflection task. Treat the supplied arguments as the task and follow the skill's two review rounds, approval checkpoints, and safeguards. Do not commit, push, dispatch, or publish unless explicitly asked.
+---
+description: Write or revise an audiobook reflection
+argument-hint: <task>
+---
+Read `.pi/skills/write-reflection/SKILL.md` and follow its instructions for this task:
+
+$ARGUMENTS

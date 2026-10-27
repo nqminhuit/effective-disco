@@ -76,6 +76,7 @@ Use the `prepare-chapter` skill. Run all three rounds in order without approval 
 3. Running the bundled extractor is **mandatory for every XHTML/HTML import**: extraction, transcription and reconstruction must be scripted and never retyped by a model, though reading the source, title and output for metadata review and visual planning is expected. Run it:
 
    ```bash
+   mkdir -p .scratch
    python3 .pi/skills/prepare-chapter/scripts/extract_chapter.py \
      --url "https://github.com/standardebooks/a-e-w-mason_the-house-of-the-arrow/blob/master/src/epub/text/chapter-1.xhtml" \
      --output .scratch/chapter-1.md

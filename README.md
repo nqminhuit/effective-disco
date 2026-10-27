@@ -35,6 +35,8 @@ Tests use unittest and pinned PyYAML. Optional content-preparer validation uses 
 python scripts/check.py --file reflections/name.md --sec10v-dir ../sec10v --sec10v-python ../sec10v/.venv/bin/python
 ```
 
+An explicit `--sec10v-python` path (or `SEC10V_PYTHON` path) is resolved from the directory where the command is run, before the preparer changes into the backend. A bare executable name such as `python3` is resolved through `PATH`.
+
 The backend directory can instead be set via `SEC10V_DIR`; its interpreter via `SEC10V_PYTHON`. Validation only checks what the preparer checks. It does not prove missing eligible spoken names, story accuracy, complete prompt coverage, or equality with a chapter baseline; the skills require those separate reviews.
 
 ## Workflow activation and cutover

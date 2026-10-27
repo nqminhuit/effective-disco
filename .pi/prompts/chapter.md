@@ -1,0 +1,1 @@
+Use `/skill:prepare-chapter` for the requested chapter task. Treat the supplied arguments as the task and follow all three stages in order, preserving exact source text and approval boundaries. Do not commit, push, dispatch, or publish unless explicitly asked.

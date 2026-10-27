@@ -10,7 +10,7 @@ A public authoring and build repository for audiobook reflections, chapter video
 - `.github/workflows/`: content build workflows and read-only checks.
 - `text/omnivoice.txt`: OmniVoice source text.
 
-Use Pi 1.4.0 with a fresh session for each piece. Pi is expected to be available as `pi`; no repository-specific model or provider is selected. From the repository root, use `/reflection <task>`, `/chapter <task>`, or `/review <paths>`. `/skill:write-reflection` and `/skill:prepare-chapter` are also available. Create scratch space with `mkdir -p .scratch`; keep downloaded sources and intermediates there. Review finished files separately and pass only relevant files to each review.
+Use Pi 1.4.0 with a fresh session for each piece. Pi is expected to be available as `pi`; no repository-specific model or provider is selected. From the repository root, use `/reflection <task>`, `/chapter <task>`, or `/review <paths>`. `/skill:write-reflection` and `/skill:make-audiobook-chapter` are also available. Create scratch space with `mkdir -p .scratch`; keep downloaded sources and intermediates there. Review finished files separately and pass only relevant files to each review.
 
 A prompt is not a sandbox. For a fresh read-only review use Pi's explicit tool selection and disable extensions/MCP, for example:
 

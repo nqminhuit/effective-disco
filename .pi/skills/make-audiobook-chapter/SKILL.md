@@ -1,6 +1,6 @@
 ---
-name: prepare-chapter
-description: Prepare or review audiobook chapters — full-text URL imports, visual sections and image prompts, then front matter and SEO. Not for reflections or commentary.
+name: make-audiobook-chapter
+description: Make audiobook chapters from user-supplied URLs containing source text, preserving full narration and adding visual sections, image prompts, front matter and SEO. Also use for chapter revisions and reviews. Not for reflections or commentary.
 ---
 
 ## Scope and safeguards
@@ -31,7 +31,7 @@ Run these rounds in order without approval checkpoints unless requested. New cha
      --output ../../../.scratch/chapter-1.md
    ```
 
-   The extractor is `.pi/skills/prepare-chapter/scripts/extract_chapter.py`. Run from this skill directory for the command above; create scratch space from the repository root with `mkdir -p .scratch` (the skill-relative path is `../../../.scratch`). Use `--input ../../../.scratch/chapter-1.xhtml` for a file already saved locally, and `--section <id>` (or a `#<section-id>` fragment on `--url`) when the file holds several chapters; `#L10`/`#L10-L20` are line anchors, not chapter ids. Existing plain-text input needs no XHTML extraction.
+   The extractor is `.pi/skills/make-audiobook-chapter/scripts/extract_chapter.py`. Run from this skill directory for the command above; create scratch space from the repository root with `mkdir -p .scratch` (the skill-relative path is `../../../.scratch`). Use `--input ../../../.scratch/chapter-1.xhtml` for a file already saved locally, and `--section <id>` (or a `#<section-id>` fragment on `--url`) when the file holds several chapters; `#L10`/`#L10-L20` are line anchors, not chapter ids. Existing plain-text input needs no XHTML extraction.
 
 3. The script is a self-contained authoring helper adapted from `nqminhuit/sec10v` `scripts/prepare_chapter.py`: it keeps the prose verbatim (honorifics, currency, NBSP, word joiners, other Unicode, within-paragraph whitespace) instead of that pipeline's normalization, TTS and dispatch machinery. It excludes document head/styles/scripts/navigation and chapter-label/title markup, preserves embedded letters, quotations and verse (`br`), unwraps only common inline `abbr`/`i`/`span`/`a`/`strong`-style tags, decodes entities once, and reports a heading group's ordinal and title together (e.g. `I: Letters of Mark`). Its output file is the authoritative narration baseline: inspect source and output, but copy the file byte-for-byte into the chapter draft and never reconstruct the prose by hand. On any error or empty result it writes nothing, so stop and fix the source or add supported scripted handling — there is no model fallback, including for HTML that is not valid XHTML — and it never overwrites an existing file. It does not implement every structure: unsupported inline markup (e.g. ruby), nested block structures (tables, lists, plays), notes/noterefs marked by `epub:type` or a DPUB-ARIA role, and loose narrative text are reported and stopped, so extend the script rather than dropping prose.
 

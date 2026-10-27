@@ -67,7 +67,7 @@ tts_names: |
 
 # Chapter workflow
 
-Use the `prepare-chapter` skill. Run all three rounds in order without approval checkpoints unless requested. Rounds 1–2 produce drafts, not build-ready chapters; do not commit or push partial drafts. When revising an existing chapter, retain its metadata and voice/render defaults until the final round rather than deleting them. Confirm that an existing file is the intended target before overwriting it.
+Use the `make-audiobook-chapter` skill. Run all three rounds in order without approval checkpoints unless requested. Rounds 1–2 produce drafts, not build-ready chapters; do not commit or push partial drafts. When revising an existing chapter, retain its metadata and voice/render defaults until the final round rather than deleting them. Confirm that an existing file is the intended target before overwriting it.
 
 ## Round 1 — Import the complete chapter
 
@@ -77,7 +77,7 @@ Use the `prepare-chapter` skill. Run all three rounds in order without approval 
 
    ```bash
    mkdir -p .scratch
-   python3 .pi/skills/prepare-chapter/scripts/extract_chapter.py \
+   python3 .pi/skills/make-audiobook-chapter/scripts/extract_chapter.py \
      --url "https://github.com/standardebooks/a-e-w-mason_the-house-of-the-arrow/blob/master/src/epub/text/chapter-1.xhtml" \
      --output .scratch/chapter-1.md
    ```

@@ -6,12 +6,12 @@ ROOT = Path(__file__).resolve().parents[2]
 WORKFLOW = ROOT / ".github" / "workflows" / "sec10v_chapter.yml"
 README = ROOT / "chapters" / "README.md"
 AGENTS = ROOT / "chapters" / "AGENTS.md"
-SKILL = ROOT / ".pi" / "skills" / "prepare-chapter" / "SKILL.md"
+SKILL = ROOT / ".pi" / "skills" / "make-audiobook-chapter" / "SKILL.md"
 SELECTOR = ROOT / ".github" / "scripts" / "select_chapter_files.py"
 
-SKILL_NAME = "prepare-chapter"
+SKILL_NAME = "make-audiobook-chapter"
 INITIALLED_NAME = "G. K. Chesterton"
-REPO_SCRIPT_PATH = ".pi/skills/prepare-chapter/scripts/extract_chapter.py"
+REPO_SCRIPT_PATH = ".pi/skills/make-audiobook-chapter/scripts/extract_chapter.py"
 EXCLUSIONS = ("ALL-CAPS", "acronyms", "initialisms")
 
 
@@ -108,6 +108,8 @@ class ChapterDocsTest(unittest.TestCase):
     def test_skill_front_matter_and_scope(self):
         self.assertTrue(self.skill.startswith("---\n"))
         self.assertIn(f"name: {SKILL_NAME}", self.skill)
+        self.assertEqual(SKILL_NAME, SKILL.parent.name)
+        self.assertIn("from user-supplied URLs containing source text", self.skill)
         self.assertIn("Not for reflections", self.skill)
         self.assertIn("../../../chapters/README.md", self.skill)
         self.assertIn("do not load or apply `write-reflection`", self.skill)

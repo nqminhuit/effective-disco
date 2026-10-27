@@ -15,22 +15,22 @@ class PiSetupTests(unittest.TestCase):
             self.assertTrue((ROOT / path).is_file(), path)
 
     def test_skills_and_routes_exist(self):
-        for path in (".pi/skills/write-reflection/SKILL.md", ".pi/skills/prepare-chapter/SKILL.md",
-                     ".pi/skills/prepare-chapter/scripts/extract_chapter.py",
+        for path in (".pi/skills/write-reflection/SKILL.md", ".pi/skills/make-audiobook-chapter/SKILL.md",
+                     ".pi/skills/make-audiobook-chapter/scripts/extract_chapter.py",
                      ".pi/prompts/reflection.md", ".pi/prompts/chapter.md", ".pi/prompts/review.md"):
             self.assertTrue((ROOT / path).is_file(), path)
         for key in ("$schema",):
             self.assertEqual("https://pi.dev/schemas/settings.schema.json", json.loads((ROOT / ".pi/settings.json").read_text())[key])
 
     def test_prompt_arguments_and_explicit_skill_routes(self):
-        for prompt, skill in (("reflection", "write-reflection"), ("chapter", "prepare-chapter")):
+        for prompt, skill in (("reflection", "write-reflection"), ("chapter", "make-audiobook-chapter")):
             text = (ROOT / f".pi/prompts/{prompt}.md").read_text()
             self.assertIn("$ARGUMENTS", text)
             self.assertIn(f".pi/skills/{skill}/SKILL.md", text)
         review = (ROOT / ".pi/prompts/review.md").read_text()
         self.assertIn("$ARGUMENTS", review)
         self.assertIn(".pi/skills/write-reflection/SKILL.md", review)
-        self.assertIn(".pi/skills/prepare-chapter/SKILL.md", review)
+        self.assertIn(".pi/skills/make-audiobook-chapter/SKILL.md", review)
         self.assertIn("without editing", review)
 
     def test_push_gates_do_not_block_manual_dispatch(self):

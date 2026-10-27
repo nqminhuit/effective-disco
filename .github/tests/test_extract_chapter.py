@@ -1,4 +1,4 @@
-"""Check the prepare-chapter XHTML extractor: source-preserving output, URL handling and CLI."""
+"""Check the make-audiobook-chapter XHTML extractor: source-preserving output, URL handling and CLI."""
 import contextlib
 import importlib.util
 import io
@@ -9,7 +9,7 @@ from pathlib import Path
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
-SCRIPT = ROOT / ".pi" / "skills" / "prepare-chapter" / "scripts" / "extract_chapter.py"
+SCRIPT = ROOT / ".pi" / "skills" / "make-audiobook-chapter" / "scripts" / "extract_chapter.py"
 
 spec = importlib.util.spec_from_file_location("extract_chapter", SCRIPT)
 extract_chapter = importlib.util.module_from_spec(spec)

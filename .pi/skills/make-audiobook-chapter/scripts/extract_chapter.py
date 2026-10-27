@@ -20,7 +20,7 @@ EPUB_NS = "http://www.idpf.org/2007/ops"
 DEFAULT_TIMEOUT = 60
 HTTP_SCHEMES = ("http", "https")
 GITHUB_HOSTS = ("github.com", "www.github.com")
-USER_AGENT = "friendly-broccoli-prepare-chapter/1.0 (+https://github.com/nqminhuit/friendly-broccoli)"
+USER_AGENT = "friendly-broccoli-make-audiobook-chapter/1.0 (+https://github.com/nqminhuit/friendly-broccoli)"
 RAW_BASE = "https://raw.githubusercontent.com"
 # The Standard Ebooks chapter path: its presence pins the ref to the segment before it.
 SE_MARKER = "src/epub/text/"

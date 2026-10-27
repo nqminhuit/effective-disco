@@ -39,10 +39,7 @@ def validate_file(target: str, backend_arg: str | None, python_arg: str | None) 
         raise ValueError(f"canonical preparer not found: {script}")
     interpreter = python_arg or os.environ.get("SEC10V_PYTHON") or sys.executable
     if "/" in interpreter or interpreter.startswith("~"):
-        interpreter_path = Path(interpreter).expanduser()
-        if not interpreter_path.is_absolute():
-            interpreter_path = Path.cwd() / interpreter_path
-        interpreter = str(interpreter_path.resolve())
+        interpreter = os.path.abspath(os.path.expanduser(interpreter))
     with tempfile.TemporaryDirectory(prefix="effective-disco-check-") as out_dir:
         env = os.environ.copy()
         env["PYTHONPATH"] = os.pathsep.join(filter(None, [str(backend / "scripts"), env.get("PYTHONPATH", "")]))

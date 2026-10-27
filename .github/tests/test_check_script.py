@@ -69,11 +69,30 @@ class CheckerTests(unittest.TestCase):
                 check.validate_file(str(target), None, None)
         with patch.dict(os.environ, {"SEC10V_DIR": str(self.backend)}), patch.object(check.subprocess, "run") as run:
             check.validate_file(str(target), None, None)
-            self.assertEqual(str(Path(check.sys.executable).resolve()), run.call_args.args[0][0])
+            self.assertEqual(os.path.abspath(os.path.expanduser(check.sys.executable)), run.call_args.args[0][0])
+
+    def test_venv_interpreter_symlink_is_preserved_for_explicit_and_default(self):
+        target = self.content("reflections/a.md")
+        venv = Path(self.tmp.name) / "venv"
+        subprocess.run([check.sys.executable, "-m", "venv", "--without-pip", str(venv)], check=True)
+        interpreter = venv / "bin/python"
+        if not interpreter.is_symlink():
+            self.skipTest("venv interpreter is not a symlink on this platform")
+
+        preparer = self.backend / "scripts/prepare_reflection.py"
+        preparer.write_text(
+            "import pathlib, sys\n"
+            "assert sys.prefix != sys.base_prefix, (sys.prefix, sys.base_prefix)\n"
+            "pathlib.Path(sys.argv[sys.argv.index('--out-dir') + 1], 'ran').write_text(sys.prefix)\n"
+        )
+        with patch.dict(os.environ, {"SEC10V_DIR": str(self.backend)}):
+            check.validate_file(str(target), str(self.backend), str(interpreter))
+            with patch.object(check.sys, "executable", str(interpreter)):
+                check.validate_file(str(target), str(self.backend), None)
 
     def test_relative_interpreter_resolved_before_backend_cwd(self):
         target = self.content("reflections/a.md")
-        with patch("scripts.check.Path.cwd", return_value=Path("/invocation")), patch.object(check.subprocess, "run") as run:
+        with patch("scripts.check.os.getcwd", return_value="/invocation"), patch.object(check.subprocess, "run") as run:
             check.validate_file(str(target), str(self.backend), "./.venv/bin/python")
         self.assertEqual("/invocation/.venv/bin/python", run.call_args.args[0][0])
 

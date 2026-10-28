@@ -94,11 +94,57 @@ class ChapterDocsTest(unittest.TestCase):
         self.assertIn("never fetched", self.readme)
         self.assertIn("dedicated", self.readme)
 
-    def test_readme_documents_motion_and_render_defaults(self):
-        self.assertIn("motion: false", self.readme)
-        self.assertIn("motion: true", self.readme)
-        self.assertIn("5 fps", self.readme)
-        self.assertIn("30 fps", self.readme)
+    def test_both_docs_define_new_chapter_voice_and_motion_defaults(self):
+        for label, doc, heading in (("README", self.readme, "## Round 3"),
+                                    ("skill", self.skill, "### Round 3")):
+            with self.subTest(document=label):
+                round3 = headed(doc, heading)
+                self.assertIn("voice: _live/stacea-voice-ai-07.wav", round3)
+                self.assertIn("motion: true", round3)
+                self.assertIn("new chapters", round3)
+                self.assertIn("including omitted keys", round3)
+                for want in ("motion: false", "5 fps", "30 fps", "Ken Burns",
+                             "1s fade-in", "1.5s fade-out", "legacy fallback"):
+                    self.assertIn(want, doc)
+                self.assertNotIn("`motion: false` (default)", doc)
+
+    def test_readme_template_includes_voice_motion_and_spoken_intro(self):
+        template = self.readme.split("```markdown\n", 1)[1].split("```", 1)[0]
+        front_matter, body = template.removeprefix("---\n").split("---\n", 1)
+        self.assertIn("voice: _live/stacea-voice-ai-07.wav\n", front_matter)
+        self.assertIn("motion: true\n", front_matter)
+        self.assertTrue(body.startswith(
+            "![](<name>-01.png)\n<book>. <chapter>.\n\n<Unchanged source narration...>\n"
+        ))
+
+    def test_both_docs_require_authored_spoken_intro_before_source(self):
+        for label, doc, heading in (("README", self.readme, "## Round 3"),
+                                    ("skill", self.skill, "### Round 3")):
+            with self.subTest(document=label):
+                round3 = headed(doc, heading)
+                self.assertIn("<book>. <chapter>.", round3)
+                self.assertIn("first narration paragraph after the first image reference", round3)
+                self.assertIn("blank line and the unchanged source opening", round3)
+                self.assertIn("duplicate an existing introduction", round3)
+                self.assertIn("including the intro", round3)
+                self.assertIn("The House of the Arrow. I: Letters of Mark.", doc)
+                self.assertIn("intro-only image/chunk", doc)
+                self.assertIn("different intro wording or no intro", doc)
+                self.assertIn("outro unless explicitly requested", doc)
+                self.assertNotIn("narration is the chapter text alone", doc)
+
+    def test_both_docs_validate_intro_separately_from_source_baseline(self):
+        for label, doc, heading in (("README", self.readme, "## Round 3"),
+                                    ("skill", self.skill, "### Round 3")):
+            with self.subTest(document=label):
+                round3 = headed(doc, heading)
+                for want in ("programmatically", "If an intro is required or preserved",
+                             "first spoken paragraph is exactly", "verified `book` and `chapter`",
+                             "single leading intro paragraph", "immutable extractor baseline exactly",
+                             "Do not globally replace", "unchanged legacy chapter has no intro",
+                             "no intro, compare without removing one", "original file or explicit request",
+                             "Never modify the baseline to include the intro"):
+                    self.assertIn(want, round3)
 
     def test_agents_require_the_skill(self):
         self.assertIn(f"`{SKILL_NAME}` skill", self.agents)
@@ -115,7 +161,7 @@ class ChapterDocsTest(unittest.TestCase):
         self.assertIn("do not load or apply `write-reflection`", self.skill)
 
     def test_skill_source_authority_and_fidelity(self):
-        for want in ("no abridgment", "never fetches", "invented", "only when explicitly requested",
+        for want in ("no abridgment", "never fetches", "invented", "unchanged source narration",
                      "source_url"):
             self.assertIn(want, self.skill, want)
         self.assertIn("Do not commit, push, dispatch or publish", self.skill)

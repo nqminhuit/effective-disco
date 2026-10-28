@@ -8,7 +8,9 @@ This is the finished format after round 3. Replace the placeholders; repeat the 
 ---
 book: <book>
 author: <author>
-chapter: <spoken chapter label>
+chapter: <verified chapter number/name>
+voice: _live/stacea-voice-ai-07.wav
+motion: true
 title: <SEO title>
 description: |
   <SEO description>
@@ -17,7 +19,9 @@ thumbnail: <name>-thumbnail.png
 source_url: <public chapter source URL>
 ---
 ![](<name>-01.png)
-<Narration...>
+<book>. <chapter>.
+
+<Unchanged source narration...>
 ![](<name>-02.png)
 <Narration...>
 ```
@@ -44,15 +48,15 @@ tts_names: |
   New York
 ```
 
-- Required: `book`, `author`, `chapter`, `title`, `description`, `thumbnail`. Optional: `voice` (sec10v `resources/voices/` file), `tts_names` (below), `source_url` (record it for imports; omit when there is no source URL), `motion` (`true`/`false`, default `false`). Hashtags recommended.
-- `chapter` is the spoken chapter label used as the chapter title metadata; it is **not** narrated on its own. There is no generated intro or outro and no `.intro` dispatch item — the video starts with the file's own words. `title` is the YouTube SEO title.
+- Required: `book`, `author`, `chapter`, `title`, `description`, `thumbnail`. Parser-optional: `voice` (sec10v `resources/voices/` file), `tts_names` (below), `source_url` (record it for imports; omit when there is no source URL), `motion` (`true`/`false`, legacy fallback `false`). For new chapters, explicitly write `voice: _live/stacea-voice-ai-07.wav` and `motion: true` unless the user requests different settings. Hashtags recommended.
+- `chapter` is the verified chapter number/name used as the chapter title metadata; it is **not** narrated on its own. There is no generated intro or outro and no `.intro` dispatch item — the video starts with the file's own words. For new chapters, author one spoken introduction line in the body: `<book>. <chapter>.` (e.g. `The House of the Arrow. I: Letters of Mark.`), using the verified book title and chapter number/name. `title` is the YouTube SEO title, not the spoken book title.
 - `book`, `author`, `chapter` are single-line. `key: value` consumes the rest of the line, including `:`; `key: |` takes following lines indented at least two spaces.
 - `description: |` is the authored YouTube description (multiline). `thumbnail` must name a dedicated image, distinct from every body image; the build resolves it separately to `out/pics/<base>.thumb.jpg`.
 - `source_url` is public provenance only (e.g. the Standard Ebooks page you imported from). It is recorded in the metadata and never fetched during a build.
-- `motion: false` (default) renders static at 5 fps with no fades; `motion: true` renders Ken Burns at 30 fps with a 1s fade-in and 1.5s fade-out. The file's choice is part of the failed-upload identity, so changing it rebuilds the video. Existing audiobook voice and render defaults are otherwise preserved.
-- `voice` names a narrator voice under sec10v `resources/voices/`; when omitted, the audiobook voice is used. A manual dispatch may override it for voice tests, but the file remains the default.
-- Prose is preserved exactly as authored: no normalization, no expanding honorifics, currency or Unicode, no reflowing. `#`–`######` headings, HTML comments and `![](ref)` lines are never spoken. Do not write joined names into the body, metadata, SEO fields or image prompts.
-- Start the body with the first `![](ref)` and then plain narration; headings are optional. Each image change starts a chunk. Group consecutive paragraphs that can share one visualization, splitting at meaningful scene changes rather than arbitrary word counts; avoid fewer than about 40 words per image.
+- `motion: true` is the authoring default for new chapters and renders Ken Burns at 30 fps with a 1s fade-in and 1.5s fade-out. `motion: false` (the legacy fallback when omitted) renders static at 5 fps with no fades. The file's choice is part of the failed-upload identity, so changing it rebuilds the video. Preserve existing voice and render settings, including omitted keys, unless asked to change them; do not change hidden pipeline defaults.
+- `voice` names a narrator voice under sec10v `resources/voices/`; new chapters explicitly use `voice: _live/stacea-voice-ai-07.wav`, matching the reflection narrator. When omitted in legacy files, the audiobook voice is used. A manual dispatch may override it for voice tests, but the file remains the default.
+- Source prose is preserved exactly as authored: no normalization, no expanding honorifics, currency or Unicode, no reflowing. The spoken intro is a separate authored addition, not part of the source baseline. `#`–`######` headings, HTML comments and `![](ref)` lines are never spoken. Do not write joined names into the body, metadata, SEO fields or image prompts.
+- Start the body with the first `![](ref)`, then the plain spoken introduction line, a blank line and the unchanged source opening; headings are optional and cannot serve as the spoken intro. Keep the intro in the opening image section, not a separate intro-only image/chunk. Each image change starts a chunk. Group consecutive paragraphs that can share one visualization, splitting at meaningful scene changes rather than arbitrary word counts; avoid fewer than about 40 words per image.
 - Do not add pause or music cues in the chapter workflow. There is no required duration cap or spoiler notice; a chapter keeps its own length and tone.
 - Use bucket-relative image/thumbnail names, resolved against the chapter image bucket (`CHAPTER_IMAGE_BUCKET` + `CHAPTER_IMAGE_PREFIX`). This repo is public: no bucket/presigned URLs or credentials, no `http(s)://`, no query strings and no `..` traversal. No build generation touches the images: upload them yourself.
 - Generated `Chapter.<CamelCase(FileName)>` names must be unique across subdirectories and punctuation variants: `the-blue-cross.md` becomes `Chapter.TheBlueCross`; `the-blue-cross.md` and `the_blue_cross.md` collide and the run is refused before any build. Renaming starts a fresh name.
@@ -63,7 +67,7 @@ tts_names: |
 
 - An imported chapter keeps the full source text exactly: no abridgment, modernization or rewriting, and no invented passages. The author may acquire and verify a source at authoring time (recording its URL as `source_url`), but the build itself never fetches.
 - Reconstructing a Markdown file means extracting the complete chapter and arranging its structure, never reconstructing missing prose. Report missing, uncertain or incomplete passages and ask rather than filling gaps.
-- Add an exact spoken intro or outro only if explicitly requested; otherwise the narration is the chapter text alone.
+- For new chapters, add one spoken introduction line `<book>. <chapter>.` in round 3, before the unchanged source narration and after the first image reference. Follow explicit requests for different intro wording or no intro. Do not add an outro unless explicitly requested. Preserve existing narration, including any intro/outro, when reviewing unless a change is requested.
 
 # Chapter workflow
 
@@ -96,10 +100,10 @@ Use the `make-audiobook-chapter` skill. Run all three rounds in order without ap
 
 ## Round 3 — Build front matter and validate
 
-1. Add the required `book`, `author`, `chapter`, authored YouTube SEO `title`, multiline `description` and dedicated `thumbnail`. Use the verified chapter label/title for `chapter`; it is not narrated automatically. Record the public chapter source URL as `source_url` for imports, without credentials or private download links.
-2. Populate `tts_names` from eligible names actually spoken in the final narration, following the rules below. Preserve existing `voice` and `motion` choices and all other render defaults unless a change is requested.
-3. Before finishing, compare the final narration to the round-1 extractor output **programmatically** — a scripted diff, not a visual or model-only read. Remove only the added front matter and the non-spoken image references, headings and HTML comments, then require the remaining text to equal the immutable extractor baseline exactly, with nothing omitted, added, duplicated or retyped. Keep the baseline to compare against.
-4. Verify full-text fidelity against the original source and the extractor's round-1 output; complete metadata and accurate provenance/SEO; correct `tts_names`; first image before narration; sensible visual sections; dedicated thumbnail and full prompt coverage; safe relative image refs; unique filenames/generated names; no placeholders or secrets; and no newly added pause/music cues. Only the completed chapter is build-ready. Do not commit, push, dispatch or publish unless requested.
+1. Add the required `book`, `author`, `chapter`, authored YouTube SEO `title`, multiline `description` and dedicated `thumbnail`. Use the verified chapter number/name for `chapter`; it is not narrated automatically. For new chapters, explicitly set `voice: _live/stacea-voice-ai-07.wav` and `motion: true`, and insert one spoken introduction line `<book>. <chapter>.` as the first narration paragraph after the first image reference, followed by a blank line and the unchanged source opening. Do not duplicate an existing introduction. Follow any explicit user overrides. Record the public chapter source URL as `source_url` for imports, without credentials or private download links.
+2. Populate `tts_names` from eligible names actually spoken in the final narration, including the intro, following the rules below. Preserve existing `voice` and `motion` choices, including omitted keys, and all other render defaults unless a change is requested.
+3. Before finishing, compare the final source narration to the round-1 extractor output **programmatically** — a scripted diff, not a visual or model-only read. Remove only the added front matter and the non-spoken image references, headings and HTML comments. If an intro is required or preserved, separately assert that the first spoken paragraph is exactly the expected introduction derived from the verified `book` and `chapter` (or the user's explicit wording or an existing intro being preserved), then remove that single leading intro paragraph and its separator before comparing the remaining text to the immutable extractor baseline exactly, with nothing omitted, added, duplicated or retyped. Do not globally replace intro-like text or discard arbitrary opening paragraphs. If the user opted out or an unchanged legacy chapter has no intro, compare without removing one. When revising an existing chapter, verify any preserved or requested spoken intro/outro against the original file or explicit request before excluding only those exact boundary paragraphs from the source comparison. Never modify the baseline to include the intro. Keep the baseline to compare against.
+4. Verify full-text fidelity against the original source and the extractor's round-1 output; correct spoken introduction; complete metadata, explicit voice/motion settings for new chapters and accurate provenance/SEO; correct `tts_names`; first image before the intro and source narration; sensible visual sections; dedicated thumbnail and full prompt coverage; safe relative image refs; unique filenames/generated names; no placeholders or secrets; and no newly added pause/music cues. Only the completed chapter is build-ready. Do not commit, push, dispatch or publish unless requested.
 
 # tts_names
 

@@ -106,25 +106,36 @@ jobs:
           ls -la
 
       - name: Set up Python 3.13
+        id: python
         uses: actions/setup-python@v7
         with:
           python-version: '3.13'
 
+      # A venv can symlink to setup-python's patch-specific interpreter. Never restore one
+      # across Python patch versions (or architectures), even when requirements are unchanged.
       - name: Cache Python venv
         id: cache-venv
         uses: actions/cache@v6
         with:
           path: sec10v/.venv
-          key: ${{ runner.os }}-venv-py3.13-${{ hashFiles('sec10v/requirements_no_cuda.txt') }}-torch-cpu
+          key: ${{ runner.os }}-${{ runner.arch }}-venv-v2-py${{ steps.python.outputs.python-version }}-${{ hashFiles('sec10v/requirements_no_cuda.txt') }}-torch-cpu
 
       - name: Install Python dependencies
-        if: steps.cache-venv.outputs.cache-hit != 'true'
         working-directory: sec10v
+        env:
+          VENV_CACHE_HIT: ${{ steps.cache-venv.outputs.cache-hit }}
         run: |
+          # A cache hit is not proof the interpreter still works on this runner image.
+          if [ "$VENV_CACHE_HIT" = "true" ] && .venv/bin/python -m pip --version; then
+            echo "Reusing validated Python venv"
+            exit 0
+          fi
+          echo "Rebuilding missing or unusable Python venv"
+          rm -rf .venv
           python -m venv .venv
-          .venv/bin/pip install --upgrade pip
-          .venv/bin/pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
-          .venv/bin/pip install -r requirements_no_cuda.txt
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+          .venv/bin/python -m pip install -r requirements_no_cuda.txt
 
       - name: Activate Python venv
         run: echo "${{ github.workspace }}/sec10v/.venv/bin" >> $GITHUB_PATH

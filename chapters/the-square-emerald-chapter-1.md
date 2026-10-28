@@ -2,6 +2,7 @@
 book: The Square Emerald
 author: Edgar Wallace
 chapter: I
+voice: _live/stacea-voice-ai-07.wav
 title: The Square Emerald by Edgar Wallace | Chapter 1 | Mystery Audiobook
 description: |
   Listen to Chapter I of The Square Emerald by Edgar Wallace, a classic British mystery audiobook. This complete, unabridged chapter opens on a bleak February afternoon in London's Berkeley Square, where Lady Raytham awaits her visitors.
@@ -31,6 +32,8 @@ tts_names: |
   Cocos Islands
 ---
 ![](the-square-emerald-chapter-1-01.png)
+The Square Emerald by Edgar Wallace. Chapter 1.
+
 Lady Raytham drew aside the long velvet curtains and looked down into Berkeley Square. It was half-past four o’clock on a cheerless February evening. Rain and sleet were falling, and a thin yellow mist added to the gloom of the dying day. An interminable string of cars and taxicabs was turning towards Berkeley Street, their shining black roofs reflecting the glare of the overhead lights that had just then hissed and spluttered to life.
 
 She looked blankly towards the desolation of the gardens, a place of bare-limbed trees and shivering shrubs⁠—stared, as though she expected to see some fog wraith take a definite and menacing shape, and give tangible form to the shadows that menaced reason and life.

@@ -19,7 +19,9 @@ thumbnail: <name>-thumbnail.png
 source_url: <public chapter source URL>
 ---
 ![](<name>-01.png)
-<book>. <chapter>.
+<book>.
+
+<chapter>.
 
 <Unchanged source narration...>
 ![](<name>-02.png)

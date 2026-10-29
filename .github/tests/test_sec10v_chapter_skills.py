@@ -114,7 +114,7 @@ class ChapterDocsTest(unittest.TestCase):
         self.assertIn("voice: _live/stacea-voice-ai-07.wav\n", front_matter)
         self.assertIn("motion: true\n", front_matter)
         self.assertTrue(body.startswith(
-            "![](<name>-01.png)\n<book>. <chapter>.\n\n<Unchanged source narration...>\n"
+            "![](<name>-01.png)\n<book>.\n\n<chapter>.\n\n<Unchanged source narration...>\n"
         ))
 
     def test_both_docs_require_authored_spoken_intro_before_source(self):

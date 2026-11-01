@@ -12,7 +12,8 @@
 #   sec10v.yml run per chunk → reflection_images.py waits for the file's images while the chunks
 #   synthesize (a second window follows the audio collection) → import_artifacts_mp3s.py collects
 #   the audio → automate_audiobook.py builds the video with the motion profile the file chose
-#   (static 5 fps, or Ken Burns 30 fps with 1s/1.5s fades when motion: true) → video_fallback.py
+#   (static 5 fps, or Ken Burns 30 fps with 1s/1.5s fades when motion: true;
+#   both use varied 1s image transitions) → video_fallback.py
 #   uploads the video to YouTube as private.
 #   A missing image skips the build/upload with a warning; upload the images then rerun.
 #   The narrator voice is the file's `voice:` (default: the audiobook voice); the dispatch's
@@ -108,6 +109,8 @@ env:
   IMAGE_WAIT_MINUTES: '60'         # second chance, after the audio is collected
   MAX_CHUNKS: '60'                 # ~20 chunks take 41-81 min; more than this can't be collected in 200
   VOICE_FROM_FILE: '(from file)'   # the voice input's default; keep in sync with its options
+  CROSSFADE_SECONDS: '1'          # match the reflection workflow's image transitions
+  TRANSITION_STYLE: 'varied'
 
 permissions:
   actions: write        # dispatch sec10v.yml runs in this repo and read their artifacts
@@ -665,8 +668,8 @@ jobs:
           fi
 
       # Only when every required image (and the dedicated thumbnail) arrived. The file's motion
-      # profile decides static 5 fps or Ken Burns 30 fps with fades; no crossfade or music bed is
-      # forced on a chapter. No segment-images means the collector never wrote them.
+      # profile decides static 5 fps or Ken Burns 30 fps with fades; both use varied image
+      # transitions. No music bed is forced on a chapter.
       - name: Build the final video
         id: video
         if: ${{ steps.fallback.outputs.status == 'miss' && (steps.image.outputs.found == 'true' || steps.image_retry.outputs.found == 'true') }}
@@ -679,7 +682,8 @@ jobs:
           # and fail on the torch this runner deliberately doesn't have.
           python scripts/pending_chunks.py
           args=("$BASE" --segment-images out/segment-images.json \
-            --framerate "$VIDEO_FRAMERATE" --fade-in "$FADE_IN_SECONDS" --fade-out "$FADE_OUT_SECONDS")
+            --framerate "$VIDEO_FRAMERATE" --crossfade "$CROSSFADE_SECONDS" \
+            --transition "$TRANSITION_STYLE" --fade-in "$FADE_IN_SECONDS" --fade-out "$FADE_OUT_SECONDS")
           if [ "$VIDEO_MOTION" = "ken-burns" ]; then args+=(--ken-burns); fi
           python scripts/automate_audiobook.py "${args[@]}"
           ls -lh out/*.final.mp4

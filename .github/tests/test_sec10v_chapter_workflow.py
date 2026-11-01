@@ -101,6 +101,10 @@ class ChapterWorkflowTest(unittest.TestCase):
         self.assertEqual("60", env["IMAGE_WAIT_MINUTES"])
         self.assertEqual("60", env["MAX_CHUNKS"])
         self.assertEqual(VOICE_FROM_FILE, env["VOICE_FROM_FILE"])
+        reflection_env = yaml.safe_load(WORKFLOW.with_name("sec10v_reflection.yml").read_text())["env"]
+        for key, expected in (("CROSSFADE_SECONDS", "1"), ("TRANSITION_STYLE", "varied")):
+            self.assertEqual(expected, env[key])
+            self.assertEqual(reflection_env[key], env[key])
         for banned in ("GEMINI_MODEL", "INTRO_AUDIO", "OUTRO_AUDIO", "VIDEO_FRAMERATE", "VIDEO_MOTION"):
             self.assertNotIn(banned, env, banned)
 
@@ -245,7 +249,9 @@ class ChapterWorkflowTest(unittest.TestCase):
                 env = {"BASE": chapter["base_name"], "VIDEO_MOTION": chapter["video_motion"],
                        "VIDEO_FRAMERATE": chapter["video_framerate"],
                        "FADE_IN_SECONDS": chapter["fade_in_seconds"],
-                       "FADE_OUT_SECONDS": chapter["fade_out_seconds"], "PYTHONPATH": "scripts"}
+                       "FADE_OUT_SECONDS": chapter["fade_out_seconds"], "PYTHONPATH": "scripts",
+                       "CROSSFADE_SECONDS": self.doc["env"]["CROSSFADE_SECONDS"],
+                       "TRANSITION_STYLE": self.doc["env"]["TRANSITION_STYLE"]}
                 proc, argv, _ = run_shell(self.shells[BUILD_NAME], work, env, delegate=False)
                 self.assertEqual(0, proc.returncode, proc.stderr)
                 self.assertIn("scripts/automate_audiobook.py", argv)
@@ -253,7 +259,8 @@ class ChapterWorkflowTest(unittest.TestCase):
                 self.assertEqual(chapter["video_framerate"], argv[argv.index("--framerate") + 1])
                 self.assertEqual(chapter["fade_out_seconds"], argv[argv.index("--fade-out") + 1])
                 self.assertEqual("out/segment-images.json", argv[argv.index("--segment-images") + 1])
-                self.assertNotIn("--crossfade", argv)
+                self.assertEqual("1", argv[argv.index("--crossfade") + 1])
+                self.assertEqual("varied", argv[argv.index("--transition") + 1])
                 self.assertNotIn("--intro-audio", argv)
                 self.assertNotIn("--outro-audio", argv)
 
